@@ -19,7 +19,7 @@ app = FastAPI(title="SE Assistant API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000", "http://127.0.0.1:3000", "http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=["http://localhost:3000","http://127.0.0.1:5500", "http://127.0.0.1:3000", "http://localhost:5173", "http://127.0.0.1:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -32,11 +32,3 @@ app.include_router(projects_router, prefix="/api/projects", tags=["Projects"])
 @app.get("/")
 def root():
     return {"message": "SE Assistant API is running"}
-
-@app.get("/test-models")
-def list_models():
-    models = []
-    for m in genai.list_models():
-        if "generateContent" in m.supported_generation_methods:
-            models.append(m.name)
-    return {"available_models": models}
