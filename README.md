@@ -1,4 +1,4 @@
-# SDE AI Workspace - Software Design Assistant 🚀
+# DesignDoc - SDE AI Workspace
 
 An intelligent AI-powered software engineering workspace that transforms natural language prompts into complete, structured software specification documents, relational databases, and visual diagrams.
 
@@ -31,7 +31,7 @@ An intelligent AI-powered software engineering workspace that transforms natural
 ## 📁 Folder Structure
 
 ```
-minor/
+design_doc/
 ├── 📄 README.md                 ← Project documentation
 ├── 📄 test.html                 ← Monolithic API playground (reassigned for developer testing)
 ├── 📄 .gitignore                ← Root gitignore configuration
@@ -109,7 +109,7 @@ Before running the project, make sure you have:
 
 ### Step 1: Clone the Repository
 ```bash
-git clone https://github.com/anujbijoria2020/SDE_AI_TOOL.git
+git clone https://github.com/anujbijoria2020/DesignDoc.git
 cd minor
 ```
 
