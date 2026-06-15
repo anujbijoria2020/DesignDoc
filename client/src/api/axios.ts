@@ -32,8 +32,9 @@ api.interceptors.response.use(
         // Retry the original request
         return api(originalRequest);
       } catch (refreshError) {
-        // On failure, redirect to /auth ONLY if we are not already on /auth
-        if (!window.location.pathname.includes('/auth')) {
+        // On failure, redirect to /auth ONLY if we are not already on a public path (like / or /auth)
+        const isPublicPath = window.location.pathname === '/' || window.location.pathname.startsWith('/auth');
+        if (!isPublicPath) {
           window.location.href = '/auth';
         }
         return Promise.reject(refreshError);

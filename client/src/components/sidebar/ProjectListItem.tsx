@@ -44,10 +44,10 @@ const ProjectListItem: React.FC<ProjectListItemProps> = ({ project, isActive }) 
         return old ? old.filter((p) => p.id !== project.id) : [];
       });
 
-      // If deleted project was active, navigate to '/' and clear chatStore
+      // If deleted project was active, navigate to '/home' and clear chatStore
       if (activeProjectId === project.id) {
         clearActiveProject();
-        navigate('/');
+        navigate('/home');
       }
     },
     onError: (err) => {

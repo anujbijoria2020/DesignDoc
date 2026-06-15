@@ -68,7 +68,7 @@ const ChatPage: React.FC = () => {
   // Redirect if invalid numeric ID in route
   useEffect(() => {
     if (projectId && isNaN(id)) {
-      navigate('/', { replace: true });
+      navigate('/home', { replace: true });
     }
   }, [projectId, id, navigate]);
 
@@ -128,7 +128,7 @@ const ChatPage: React.FC = () => {
           The project you are looking for does not exist, has been deleted, or you don't have access.
         </p>
         <button
-          onClick={() => navigate('/', { replace: true })}
+          onClick={() => navigate('/home', { replace: true })}
           className="px-4 py-2 bg-accent hover:bg-accent/90 text-white text-xs font-semibold rounded-xl cursor-pointer shadow-xs transition-colors"
         >
           Back to Home

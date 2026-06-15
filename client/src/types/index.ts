@@ -21,10 +21,10 @@ export interface SRS {
   project_title: string;
   purpose: string;
   scope: string;
-  user_classes: string[];
+  user_classes: (string | { name: string; description: string })[];
   functional_requirements: FunctionalRequirement[];
   non_functional_requirements: NonFunctionalRequirement[];
-  constraints: string[];
+  constraints: (string | { name: string; description: string })[];
 }
 
 export interface GeneratedArtifacts {

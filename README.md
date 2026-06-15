@@ -1,543 +1,207 @@
-# SDE AI Tool 🚀
+# SDE AI Workspace - Software Design Assistant 🚀
 
-An intelligent AI-powered Software Development Engineering tool that generates Software Requirement Specifications (SRS), SQL queries, and visual diagrams from natural language input using Google's Gemini AI.
+An intelligent AI-powered software engineering workspace that transforms natural language prompts into complete, structured software specification documents, relational databases, and visual diagrams.
 
 ---
 
 ## 📋 Table of Contents
 
-- [Project Overview](#project-overview)
-- [Folder Structure](#folder-structure)
-- [Tech Stack](#tech-stack)
-- [Prerequisites](#prerequisites)
-- [Installation & Setup](#installation--setup)
-- [Running the Project](#running-the-project)
-- [Project Features](#project-features)
-- [API Documentation](#api-documentation)
-- [Team Collaboration Guide](#team-collaboration-guide)
-- [Troubleshooting](#troubleshooting)
-- [Contributing](#contributing)
+- [Key Features](#-key-features)
+- [Folder Structure](#-folder-structure)
+- [Tech Stack](#-tech-stack)
+- [Prerequisites](#-prerequisites)
+- [Installation & Setup](#-installation--setup)
+- [Running the Project](#-running-the-project)
+- [Database Migrations](#-database-migrations)
+- [API Documentation](#-api-documentation)
 
 ---
 
-## 📖 Project Overview
+## ✨ Key Features
 
-**SDE AI Tool** leverages Google Gemini AI to:
-
-- Convert natural language requirements into structured SRS documents
-- Generate SQL queries from natural language descriptions
-- Create visual diagrams (sequence, ER, flowchart, etc.) using Mermaid
-- Parse and structure complex software requirements
-
-**Perfect for:** Agile teams, startup MVPs, requirement analysis, and rapid development cycles.
+*   **Unified AI Artifact Generation:** Generates a comprehensive software design suite (SRS document, ER diagram, Class diagram, Sequence diagram, and SQL DDL schema) in a single request using Google Gemini 2.5 Flash.
+*   **Interactive UML Visualizations:** Renders interactive, zoomable, and downloadable SVG diagrams powered by Mermaid.js.
+*   **SRS Document Exporter:** Allows exporting the generated Software Requirements Specification (SRS) to **PDF** (via clean browser print layout overrides) or **Microsoft Word (.doc)** format.
+*   **SQL Script Inspector:** Formatted code editor view with syntax highlighting, click-to-copy, and standalone file downloading.
+*   **Secure Session Authentication:** Includes user sign-up, login, and secure token rotation utilizing HttpOnly, SameSite, and secure-ready cookies.
+*   **Database Persistency:** Automatically saves generated spec bundles into Neon PostgreSQL under user accounts.
 
 ---
 
 ## 📁 Folder Structure
 
 ```
-SDE_ai_tool/
+minor/
+├── 📄 README.md                 ← Project documentation
+├── 📄 test.html                 ← Monolithic API playground (reassigned for developer testing)
+├── 📄 .gitignore                ← Root gitignore configuration
 │
-├── 📄 README.md                 ← You are here! Project documentation
-├── 📄 package.json              ← Root-level npm scripts for running both services
-├── 📄 .gitignore                ← Git configuration (multilevel)
-├── 🔐 .env                      ← Environment variables (not committed)
+├── 🔧 backend/                  ← FastAPI Python Backend
+│   ├── main.py                  ← Server entry point
+│   ├── requirements.txt         ← Python requirements list
+│   ├── .env.example             ← Backend environment configurations template
+│   ├── alembic/                 ← Schema migration history
+│   │   └── versions/            ← Auto-generated migration scripts
+│   ├── app/
+│   │   ├── core/                ← App configurations, db engine setup, security, dependencies
+│   │   ├── db_models/           ← SQLAlchemy schema definitions (User, Project, Artifacts)
+│   │   ├── schemas/             ← Pydantic requests & responses models
+│   │   ├── routes/              ← Auth, Projects, and Generation endpoints
+│   │   └── services/            ← Prompt construction, Gemini integration, and parsers
+│   └── alembic.ini              ← Alembic configuration file
 │
-├── 🔧 backend/                  ← Flask/FastAPI Python Backend
-│   ├── main.py                  ← Backend entry point (Server startup)
-│   ├── requirements.txt         ← Python dependencies
-│   ├── .gitignore               ← Backend-specific ignores
-│   │
-│   ├── models/
-│   │   └── schemas.py           ← Data models & validation schemas
-│   │
-│   ├── routes/
-│   │   └── generate.py          ← API endpoints for generation
-│   │
-│   └── services/
-│       ├── gemini.py            ← Google Gemini AI integration
-│       ├── parser.py            ← Parse & structure AI responses
-│       └── prompt_builder.py    ← Build optimized prompts
-│
-└── 🎨 frontend/                 ← React.js Frontend Application
-    ├── package.json             ← Node dependencies & scripts
-    ├── .gitignore               ← Frontend-specific ignores
-    ├── public/
-    │   ├── index.html           ← Main HTML template
-    │   └── manifest.json        ← PWA configuration
-    │
+└── 🎨 client/                   ← React 19 + TypeScript + Vite + Tailwind Client
+    ├── package.json             ← Node package scripts and dev dependencies
+    ├── eslint.config.js         ← Lint rules configuration
+    ├── .env.example             ← Client environment configuration template
+    ├── tsconfig.json            ← TypeScript config
     └── src/
-        ├── App.js               ← Root React component
-        ├── App.css              ← Global styles
-        ├── index.js             ← React entry point
-        │
+        ├── App.tsx              ← App routing portal
+        ├── main.tsx             ← Render mounting script
+        ├── index.css            ← Global tailwind directives & print overrides
+        ├── api/                 ← Axios instances and query endpoints
+        ├── context/             ← Auth state provider
+        ├── store/               ← Zustand state stores (chat, toasts)
+        ├── types/               ← TypeScript type declarations
+        ├── pages/               ← AuthPage, ChatPage
         └── components/
-            ├── InputSection.js  ← User input form
-            ├── SRSView.js       ← Display SRS output
-            ├── SQLView.js       ← Display SQL queries
-            └── DiagramView.js   ← Display Mermaid diagrams
+            ├── ProtectedRoute.tsx
+            ├── ui/              ← Button, Spinner, Toast, Skeleton modal elements
+            ├── chat/            ← ChatInput, ChatMessage, EmptyState
+            ├── sidebar/         ← NewChatButton, ProjectListItem
+            └── artifacts/       ← ArtifactTabs, SRSViewer, MermaidDiagram, SQLViewer
 ```
-
-### Folder Roles 📌
-
-| Folder                 | Purpose             | Tech                  |
-| ---------------------- | ------------------- | --------------------- |
-| `backend/`             | API & AI processing | Python, FastAPI/Flask |
-| `frontend/`            | User interface      | React.js, CSS         |
-| `backend/models/`      | Data validation     | Pydantic schemas      |
-| `backend/routes/`      | API endpoints       | REST endpoints        |
-| `backend/services/`    | Business logic      | Gemini API, parsing   |
-| `frontend/components/` | React components    | UI modules            |
 
 ---
 
 ## 🛠 Tech Stack
 
-### Backend
+### Client (Frontend)
+*   **Core:** React 19, TypeScript, Vite
+*   **State Management:** Zustand, TanStack React Query (v5)
+*   **Styling:** Vanilla CSS, Tailwind CSS (v4)
+*   **HTTP Client:** Axios (integrated with automatic JWT HttpOnly refresh rotation)
+*   **Visualizations:** Mermaid.js, Lucide React
 
-- **Framework:** Flask/FastAPI (Python 3.9+)
-- **AI Model:** Google Gemini API
-- **Data Validation:** Pydantic
-- **Environment:** Python virtual environment
+### Server (Backend)
+*   **Core Framework:** FastAPI (ASGI Python 3.10+)
+*   **ORM:** SQLAlchemy (v2.0+)
+*   **Database Migrations:** Alembic
+*   **AI Engine:** Google Generative AI (Gemini 2.5 Flash API)
+*   **Authentication:** Python-Jose (JWT creation & decoding), Passlib (Bcrypt)
 
-### Frontend
-
-- **Framework:** React.js (v19.2.6+)
-- **Styling:** CSS3
-- **HTTP Client:** Axios
-- **Diagrams:** Mermaid.js
-- **Build Tool:** Create React App
-
-### DevOps
-
-- **Version Control:** Git & GitHub
-- **Task Runner:** npm (concurrently)
-- **Container:** Docker (optional)
+### Database
+*   **Serverless SQL:** Neon PostgreSQL (integrated with SQLAlchemy `pool_pre_ping=True` and connection recycles to handle serverless idle timeouts)
 
 ---
 
 ## 📋 Prerequisites
 
-Before you start, ensure you have:
-
-- ✅ **Git** - Version control ([Download](https://git-scm.com/))
-- ✅ **Node.js** (v16+) & npm - For frontend ([Download](https://nodejs.org/))
-- ✅ **Python** (v3.9+) - For backend ([Download](https://www.python.org/))
-- ✅ **Google Gemini API Key** - Free tier available ([Get Key](https://ai.google.dev/))
-
-### Verify Installation
-
-```bash
-node --version      # v16.0.0 or higher
-npm --version       # 7.0.0 or higher
-python --version    # 3.9.0 or higher
-git --version       # 2.30.0 or higher
-```
+Before running the project, make sure you have:
+*   ✅ **Python** (v3.10+) - [Download](https://www.python.org/)
+*   ✅ **Node.js** (v18+) & npm - [Download](https://nodejs.org/)
+*   ✅ **Neon PostgreSQL Database** (or local Postgres instance)
+*   ✅ **Google Gemini API Key** - [Google AI Studio](https://ai.google.dev/)
 
 ---
 
 ## 🚀 Installation & Setup
 
-### Step 1: Clone Repository
-
+### Step 1: Clone the Repository
 ```bash
-git clone https://github.com/Ankitprajapati24/SDE_Ai_Tool.git
-cd SDE_ai_tool
+git clone https://github.com/anujbijoria2020/SDE_AI_TOOL.git
+cd minor
 ```
 
-### Step 2: Setup Backend
+### Step 2: Configure the Backend Environment
+1. Navigate to the backend directory:
+   ```bash
+   cd backend
+   ```
+2. Create and activate a Python virtual environment:
+   ```bash
+   # Windows
+   python -m venv .venv
+   .venv\Scripts\activate
+
+   # macOS/Linux
+   python3 -m venv .venv
+   source .venv/bin/activate
+   ```
+3. Install required packages:
+   ```bash
+   pip install -r requirements.txt
+   ```
+4. Create a `.env` file from the example:
+   ```bash
+   copy .env.example .env   # Windows
+   cp .env.example .env     # macOS/Linux
+   ```
+5. Open the `.env` file and populate your actual `GEMINI_API_KEY`, `DATABASE_URL`, and a strong `SECRET_KEY`.
+
+### Step 3: Configure the Client Environment
+1. Open a new terminal and navigate to the client directory:
+   ```bash
+   cd client
+   ```
+2. Install npm dependencies:
+   ```bash
+   npm install
+   ```
+3. Create a `.env` file from the example:
+   ```bash
+   copy .env.example .env   # Windows
+   cp .env.example .env     # macOS/Linux
+   ```
+
+---
+
+## 💾 Database Migrations
+
+Before starting the server, run the Alembic migrations to construct the database schema:
 
 ```bash
-# Navigate to backend folder
 cd backend
-
-# Create Python virtual environment
-python -m venv venv
-
-# Activate virtual environment
-# On Windows:
-.\venv\Scripts\activate
-# On macOS/Linux:
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Create .env file
-echo GEMINI_API_KEY=your_key_here > .env
+# Make sure your virtual environment is active
+alembic upgrade head
 ```
 
-### Step 3: Setup Frontend
-
-```bash
-# Navigate to frontend folder
-cd ../frontend
-
-# Install npm dependencies
-npm install
-```
-
-### Step 4: Get Gemini API Key
-
-1. Go to [Google AI Studio](https://ai.google.dev/)
-2. Click "Get API Key"
-3. Create new API key
-4. Copy and add to `backend/.env`:
-
-```env
-GEMINI_API_KEY=your_actual_api_key_here
-```
+This will automatically create the `users`, `refresh_tokens`, `projects`, and `generated_artifacts` tables in your configured PostgreSQL database.
 
 ---
 
 ## ▶️ Running the Project
 
-### **Option 1: Run Both Services (RECOMMENDED) 🎯**
-
-From root directory:
-
+### Running the Backend
+From the `backend` directory, run:
 ```bash
-npm start
+uvicorn main:app --reload
 ```
+The FastAPI documentation will be available at `http://localhost:8000/docs` (Swagger UI).
 
-This will start:
-
-- **Backend:** Running on `http://localhost:5000` (or your configured port)
-- **Frontend:** Running on `http://localhost:3000`
-
-### **Option 2: Run Services Separately**
-
-#### Backend Only
-
+### Running the Client
+From the `client` directory, run:
 ```bash
-cd backend
-.\venv\Scripts\activate        # Windows
-python main.py                 # Starts server
+npm run dev
 ```
-
-#### Frontend Only
-
-```bash
-cd frontend
-npm start                       # Starts React dev server
-```
-
-### **Option 3: Run with Docker (Optional)**
-
-```bash
-docker-compose up
-```
-
----
-
-## ✨ Project Features
-
-### 🤖 AI-Powered Generation
-
-- **SRS Generator:** Converts requirements → structured SRS documents
-- **SQL Query Generator:** Natural language → SQL queries
-- **Diagram Generator:** Text descriptions → Mermaid diagrams
-- **Smart Parser:** Extracts and structures AI responses
-
-### 🎨 User Interface
-
-- Intuitive input form for natural language
-- Real-time output display
-- Tabbed interface (SRS | SQL | Diagrams)
-- Copy-to-clipboard functionality
-- Responsive design
-
-### 🔧 Backend Features
-
-- REST API endpoints
-- Prompt optimization
-- Response parsing & validation
-- Error handling & logging
+The application interface will start at `http://localhost:5173`.
 
 ---
 
 ## 📡 API Documentation
 
-### Base URL
-
-```
-http://localhost:5000/api
-```
-
-### Endpoints
-
-#### 1. **Generate SRS**
-
-```
-POST /api/generate/srs
-Content-Type: application/json
-
-{
-  "requirement": "Build a user authentication system"
-}
-
-Response:
-{
-  "srs": "1. Functional Requirements\n   - User login\n   - Password reset\n...",
-  "status": "success"
-}
-```
-
-#### 2. **Generate SQL Query**
-
-```
-POST /api/generate/sql
-Content-Type: application/json
-
-{
-  "description": "Get all users who registered in last 30 days"
-}
-
-Response:
-{
-  "query": "SELECT * FROM users WHERE created_at >= DATE_SUB(NOW(), INTERVAL 30 DAY);",
-  "status": "success"
-}
-```
-
-#### 3. **Generate Diagram**
-
-```
-POST /api/generate/diagram
-Content-Type: application/json
-
-{
-  "description": "User logs in, system validates, returns token"
-}
-
-Response:
-{
-  "diagram": "sequenceDiagram\n  User->>System: Login\n...",
-  "type": "sequence",
-  "status": "success"
-}
-```
-
----
-
-## 👥 Team Collaboration Guide
-
-### For Team Members Joining the Project
-
-#### 1. **Clone and Setup (First Time Only)**
-
-```bash
-git clone https://github.com/Ankitprajapati24/SDE_Ai_Tool.git
-cd SDE_ai_tool
-
-# Setup backend
-cd backend
-python -m venv venv
-.\venv\Scripts\activate
-pip install -r requirements.txt
-cd ..
-
-# Setup frontend
-cd frontend
-npm install
-```
-
-#### 2. **Daily Development Workflow**
-
-```bash
-# Start of day - fetch latest changes
-git pull origin main
-
-# Activate backend environment
-cd backend
-.\venv\Scripts\activate
-
-# Run entire project from root
-cd ..
-npm start
-```
-
-#### 3. **Making Changes**
-
-```bash
-# Create feature branch
-git checkout -b feature/your-feature-name
-
-# Make changes...
-
-# Stage changes
-git add .
-
-# Commit with meaningful message
-git commit -m "feat: Add SRS export to PDF feature"
-
-# Push to GitHub
-git push origin feature/your-feature-name
-
-# Create Pull Request on GitHub
-```
-
-#### 4. **Folder Assignments**
-
-| Team Member  | Assigned Folder            | Responsibility                   |
-| ------------ | -------------------------- | -------------------------------- |
-| Backend Dev  | `/backend`                 | API, Gemini integration, parsing |
-| Frontend Dev | `/frontend/src/components` | UI components, user interactions |
-| Full Stack   | Both                       | Feature integration, deployment  |
-| DevOps       | `/` root                   | Deployment, CI/CD, Docker        |
-
-#### 5. **Communication Guidelines**
-
-- Use **meaningful commit messages** (not "fix bug" or "update")
-- Update `.env` locally (never commit secrets)
-- Keep `requirements.txt` and `package.json` synced
-- Test locally before pushing
-- Create Pull Requests for code review
-
-#### 6. **Sync Dependencies**
-
-**After pulling new code:**
-
-```bash
-# Backend dependencies updated?
-cd backend
-pip install -r requirements.txt
-
-# Frontend dependencies updated?
-cd ../frontend
-npm install
-```
-
----
-
-## 🐛 Troubleshooting
-
-### Issue: Backend won't start
-
-**Solution:**
-
-```bash
-# 1. Check Python version
-python --version  # Should be 3.9+
-
-# 2. Recreate virtual environment
-cd backend
-rmdir /s venv      # Windows
-rm -rf venv        # macOS/Linux
-python -m venv venv
-.\venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-### Issue: Frontend won't load
-
-**Solution:**
-
-```bash
-# 1. Clear cache
-cd frontend
-rm -rf node_modules
-npm cache clean --force
-
-# 2. Reinstall
-npm install
-npm start
-```
-
-### Issue: Gemini API Key not working
-
-**Solution:**
-
-```bash
-# 1. Check .env file exists
-ls backend/.env    # macOS/Linux
-dir backend\.env   # Windows
-
-# 2. Verify key format
-# Should look like: AIzaSy... (no quotes)
-
-# 3. Restart backend after changing .env
-```
-
-### Issue: Port already in use
-
-**Solution:**
-
-```bash
-# Backend port 5000 in use?
-netstat -ano | findstr :5000    # Windows
-
-# Kill process
-taskkill /PID <PID> /F          # Windows
-
-# Or change port in backend/main.py
-# Change: app.run(port=5001)
-```
-
----
-
-## 📝 Contributing
-
-### Contribution Steps
-
-1. **Fork** the repository
-2. **Create feature branch**: `git checkout -b feature/your-feature`
-3. **Make changes** with clear commits
-4. **Test thoroughly** locally
-5. **Push** to your fork: `git push origin feature/your-feature`
-6. **Create Pull Request** with description of changes
-
-### Code Standards
-
-- ✅ Write clear, commented code
-- ✅ Follow existing code style
-- ✅ Test before committing
-- ✅ Use meaningful variable names
-- ✅ Add docstrings to functions
-
----
-
-## 📞 Support & Questions
-
-- **Documentation Issues?** Check existing issues
-- **Feature Request?** Open a GitHub issue
-- **Need Help?** Ask in team discussions
-
----
-
-## 📄 License
-
-This project is licensed under MIT License - see LICENSE file for details.
-
----
-
-## 🎯 Quick Start Cheatsheet
-
-```bash
-# First time setup
-git clone <repo>
-cd SDE_ai_tool
-cd backend && python -m venv venv && .\venv\Scripts\activate && pip install -r requirements.txt && cd ..
-cd frontend && npm install && cd ..
-
-# Daily start
-npm start
-
-# Updating code
-git pull origin main
-cd backend && pip install -r requirements.txt && cd ..
-cd frontend && npm install && cd ..
-
-# Making changes
-git checkout -b feature/name
-# ... make changes ...
-git add .
-git commit -m "feat: description"
-git push origin feature/name
-```
-
----
-
-**Made with ❤️ by the Team**
-
-Last Updated: May 30, 2026
+### Authentication Routes (`/api/auth`)
+*   `POST /api/auth/register` - Registers a new user.
+*   `POST /api/auth/login` - Authenticates user credentials and sets access & refresh tokens in HttpOnly cookies.
+*   `POST /api/auth/refresh` - Evaluates refresh token cookie and issues a new access token.
+*   `POST /api/auth/logout` - Revokes refresh tokens and clears client cookies.
+*   `GET /api/auth/me` - Retrieves current authenticated user profile details.
+
+### Generation Routes (`/api`)
+*   `POST /api/generate` - Submits a prompt description, invokes Gemini 2.5 Flash, validates returned JSON formatting, and persists the resulting SRS and diagram suite.
+
+### Projects CRUD Routes (`/api/projects`)
+*   `POST /api/projects/` - Saves a project layout manually.
+*   `GET /api/projects/` - Lists all generated projects owned by the user.
+*   `GET /api/projects/{project_id}` - Retrieves detailed information and all artifacts for a specific project.
+*   `DELETE /api/projects/{project_id}` - Deletes a project and its associated artifacts cascadingly.

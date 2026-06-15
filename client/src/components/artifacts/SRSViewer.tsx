@@ -64,7 +64,9 @@ const SRSViewer: React.FC<SRSViewerProps> = ({ srs }) => {
         
         <h2>3. User Classes & Characteristics</h2>
         <p style="font-size: 14px; line-height: 1.6; color: #1A1A1A;">
-          ${user_classes.length > 0 ? user_classes.join(', ') : 'N/A'}
+          ${user_classes.length > 0 
+            ? user_classes.map(cls => typeof cls === 'object' && cls !== null ? `${(cls as any).name}: ${(cls as any).description}` : cls).join(', ') 
+            : 'N/A'}
         </p>
         
         <h2>4. Functional Requirements</h2>
@@ -109,7 +111,14 @@ const SRSViewer: React.FC<SRSViewerProps> = ({ srs }) => {
         
         <h2>6. Design & Implementation Constraints</h2>
         <ul style="font-size: 14px; line-height: 1.6; color: #1A1A1A; padding-left: 20px;">
-          ${constraints.map(constraint => `<li>${constraint}</li>`).join('')}
+          ${constraints.map(constraint => {
+            if (typeof constraint === 'object' && constraint !== null) {
+              const name = (constraint as any).name || '';
+              const desc = (constraint as any).description || '';
+              return `<li><strong>${name}</strong>${desc ? `: ${desc}` : ''}</li>`;
+            }
+            return `<li>${constraint}</li>`;
+          }).join('')}
         </ul>
       </div>
     `;
@@ -225,15 +234,39 @@ const SRSViewer: React.FC<SRSViewerProps> = ({ srs }) => {
               <Award size={14} className="text-accent" />
               3. User Classes & Characteristics
             </h3>
-            <div className="flex flex-wrap gap-2">
-              {user_classes.map((cls, index) => (
-                <span 
-                  key={index} 
-                  className="bg-hover-bg border border-border-main text-text-primary px-3 py-1 rounded-full text-xs font-medium"
-                >
-                  {cls}
-                </span>
-              ))}
+            <div className={user_classes.some(c => typeof c === 'object' && c !== null) ? "grid grid-cols-1 sm:grid-cols-2 gap-3" : "flex flex-wrap gap-2"}>
+              {user_classes.map((cls, index) => {
+                const isObject = typeof cls === 'object' && cls !== null;
+                const name = isObject ? (cls as any).name : cls;
+                const description = isObject ? (cls as any).description : '';
+
+                if (isObject) {
+                  return (
+                    <div 
+                      key={index}
+                      className="p-3 rounded-lg border border-border-main bg-hover-bg/10 flex flex-col gap-1 text-left"
+                    >
+                      <span className="text-sm font-semibold text-text-primary">
+                        {name}
+                      </span>
+                      {description && (
+                        <span className="text-xs text-text-muted leading-relaxed">
+                          {description}
+                        </span>
+                      )}
+                    </div>
+                  );
+                }
+
+                return (
+                  <span 
+                    key={index} 
+                    className="bg-hover-bg border border-border-main text-text-primary px-3 py-1 rounded-full text-xs font-medium"
+                  >
+                    {cls}
+                  </span>
+                );
+              })}
             </div>
           </div>
         )}
@@ -318,11 +351,19 @@ const SRSViewer: React.FC<SRSViewerProps> = ({ srs }) => {
               6. Design & Implementation Constraints
             </h3>
             <ul className="list-disc pl-5 text-sm text-text-muted flex flex-col gap-2 leading-relaxed">
-              {constraints.map((constraint, index) => (
-                <li key={index} className="pl-1">
-                  <span className="text-text-primary">{constraint}</span>
-                </li>
-              ))}
+              {constraints.map((constraint, index) => {
+                const isObject = typeof constraint === 'object' && constraint !== null;
+                const name = isObject ? (constraint as any).name : constraint;
+                const description = isObject ? (constraint as any).description : '';
+                return (
+                  <li key={index} className="pl-1 text-left">
+                    <span className="text-text-primary font-medium">{name}</span>
+                    {description && (
+                      <span className="text-xs text-text-muted block mt-0.5">{description}</span>
+                    )}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         )}

@@ -11,7 +11,7 @@ const NewChatButton: React.FC = () => {
 
   const handleNewChat = () => {
     startNewChat();
-    navigate('/');
+    navigate('/home');
   };
 
   return (

@@ -28,7 +28,59 @@ function sanitizeMermaidCode(raw: string): string {
     .replace(/\\"/g, '"')
     .replace(/\\\\/g, '\\');
   
-  return cleaned.trim();
+  // Parse lines to clean up invalid ERD attribute syntax
+  const lines = cleaned.split('\n');
+  let insideBlock = false;
+  const processedLines: string[] = [];
+
+  for (let line of lines) {
+    const trimmed = line.trim();
+    if (trimmed.includes('{')) {
+      insideBlock = true;
+    }
+    if (trimmed.includes('}')) {
+      insideBlock = false;
+    }
+
+    if (insideBlock && !trimmed.includes('{')) {
+      // We are inside an entity block. Check for invalid characters in columns.
+      // 1. Remove composite constraint lines like "PRIMARY KEY (col1, col2)" or "CONSTRAINT fk_name"
+      if (
+        /^(primary\s+key|foreign\s+key|unique|key|constraint)\b/i.test(trimmed) &&
+        (trimmed.includes('(') || trimmed.includes(')'))
+      ) {
+        continue;
+      }
+
+      // 2. If a line has parenthesis, it might be something like:
+      // "int quantity KEY (order_id, product_id)"
+      // Let's strip the KEY (...) part
+      if (trimmed.includes('(') || trimmed.includes(')')) {
+        let sanitizedLine = line
+          .replace(/\b(key|primary\s+key|foreign\s+key|unique|constraint)\s*\(.*?\)/i, '')
+          // Also handle cases like: "varchar(255)" which is valid in SQL but not in Mermaid
+          .replace(/\(\d+\)/g, '');
+
+        // Remove any commas
+        sanitizedLine = sanitizedLine.replace(/,/g, ' ');
+        // Remove trailing or double spaces
+        sanitizedLine = sanitizedLine.replace(/\s+/g, ' ');
+
+        processedLines.push(sanitizedLine);
+        continue;
+      }
+      
+      // 3. Remove commas from list of keys, e.g. "int id PK, FK" -> "int id PK FK"
+      if (trimmed.includes(',')) {
+        processedLines.push(line.replace(/,/g, ' '));
+        continue;
+      }
+    }
+
+    processedLines.push(line);
+  }
+
+  return processedLines.join('\n').trim();
 }
 
 const MermaidDiagram: React.FC<MermaidDiagramProps> = ({ code, title }) => {
