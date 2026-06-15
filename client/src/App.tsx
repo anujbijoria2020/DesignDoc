@@ -4,6 +4,7 @@ import { AuthProvider } from './context/AuthContext';
 import ProtectedRoute from './components/ProtectedRoute';
 import AuthPage from './pages/AuthPage';
 import ChatPage from './pages/ChatPage';
+import LandingPage from './pages/LandingPage';
 import AppShell from './components/layout/AppShell';
 import { ToastContainer } from './components/ui/Toast';
 
@@ -13,6 +14,9 @@ const App: React.FC = () => {
       <AuthProvider>
         <ToastContainer />
         <Routes>
+          {/* Public landing page */}
+          <Route path="/" element={<LandingPage />} />
+
           {/* Authentication portal */}
           <Route path="/auth" element={<AuthPage />} />
 
@@ -24,7 +28,7 @@ const App: React.FC = () => {
               </ProtectedRoute>
             }
           >
-            <Route path="/" element={<ChatPage />} />
+            <Route path="/home" element={<ChatPage />} />
             <Route path="/chat/:projectId" element={<ChatPage />} />
           </Route>
 

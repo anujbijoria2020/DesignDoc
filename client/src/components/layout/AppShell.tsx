@@ -110,7 +110,7 @@ const AppShell: React.FC = () => {
           {/* Center: Centered app title */}
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none px-16">
             <span className="font-semibold text-sm text-text-primary truncate">
-              {activeProject ? activeProject.title : 'SE Assistant'}
+              {activeProject ? activeProject.title : 'DesignDoc'}
             </span>
           </div>
 

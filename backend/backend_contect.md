@@ -1,4 +1,4 @@
-# SE Assistant API — Complete Backend Technical Documentation
+# DesignDoc API — Complete Backend Technical Documentation
 
 > **Generated:** 2026-06-10  
 > **Path:** `backend/backend_contect.md`  
@@ -32,7 +32,7 @@
 
 ## 1. Project Overview
 
-**Project Name:** SE Assistant API  
+**Project Name:** DesignDoc API  
 **Framework:** FastAPI (Python 3.13)  
 **Database:** PostgreSQL (hosted on Neon — serverless, pooled connection)  
 **AI Backend:** Google Gemini 2.5 Flash (`gemini-2.5-flash`)  
@@ -180,7 +180,7 @@ from app.routes.projects import router as projects_router
 load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
-app = FastAPI(title="SE Assistant API")
+app = FastAPI(title="DesignDoc API")
 
 app.add_middleware(
     CORSMiddleware,
@@ -932,7 +932,7 @@ _If body is not provided, the cookie `refresh_token` is used._
 #### `GET /`
 
 **Auth required:** No  
-**Response:** `{ "message": "SE Assistant API is running" }`
+**Response:** `{ "message": "DesignDoc API is running" }`
 
 #### `GET /test-models`
 

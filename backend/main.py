@@ -15,11 +15,11 @@ from app.routes.projects import router as projects_router
 load_dotenv()
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
-app = FastAPI(title="SE Assistant API")
+app = FastAPI(title="DesignDoc API")
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000","http://127.0.0.1:5500", "http://127.0.0.1:3000", "http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -31,4 +31,4 @@ app.include_router(projects_router, prefix="/api/projects", tags=["Projects"])
 
 @app.get("/")
 def root():
-    return {"message": "SE Assistant API is running"}
+    return {"message": "DesignDoc API is running"}

@@ -7,7 +7,7 @@ import Skeleton from '../ui/Skeleton';
 import { useQuery } from '@tanstack/react-query';
 import { getProjects } from '../../api/projects';
 import type { ProjectListItem as ProjectListItemData } from '../../types';
-import { LogOut, User as UserIcon, Code2, Compass, PanelLeftClose, PanelLeftOpen, AlertCircle } from 'lucide-react';
+import { LogOut, User as UserIcon, FileText, Compass, PanelLeftClose, PanelLeftOpen, AlertCircle } from 'lucide-react';
 
 interface GroupedProjects {
   Today: ProjectListItemData[];
@@ -61,10 +61,10 @@ const LeftSidebar: React.FC = () => {
         {!sidebarCollapsed && (
           <div className="flex items-center gap-2.5">
             <div className="bg-accent text-white p-1.5 rounded-lg flex items-center justify-center shadow-xs">
-              <Code2 size={20} />
+              <FileText size={20} />
             </div>
             <div>
-              <h1 className="text-sm font-semibold text-text-primary tracking-tight">SE Assistant</h1>
+              <h1 className="text-sm font-semibold text-text-primary tracking-tight">DesignDoc</h1>
               <p className="text-[10px] text-text-muted">Software Studio</p>
             </div>
           </div>
