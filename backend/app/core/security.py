@@ -12,7 +12,8 @@ def verify_password(plain_password: str, hashed_password: str) -> bool:
     except Exception:
         return False
 
-def get_password_hash(password: str) -> str:
+def get_password_hash(password: str):
+    password = password[:72]
     return pwd_context.hash(password)
 
 def create_access_token(subject: Union[str, Any], expires_delta: timedelta = None) -> str:
