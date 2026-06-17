@@ -66,11 +66,25 @@ const AuthPage: React.FC = () => {
       }
     } catch (err: any) {
       console.error(err);
-      setError(
-        err.response?.data?.detail ||
-        err.message ||
-        (isLogin ? 'Failed to log in. Please check your credentials.' : 'Registration failed. User may already exist.')
-      );
+      let errorMessage = '';
+      if (err.response?.data?.detail) {
+        const detail = err.response.data.detail;
+        if (typeof detail === 'string') {
+          errorMessage = detail;
+        } else if (Array.isArray(detail)) {
+          errorMessage = detail.map((d: any) => {
+            const locPath = d.loc ? d.loc.filter((item: any) => item !== 'body').join('.') : '';
+            return locPath ? `${locPath}: ${d.msg}` : d.msg;
+          }).join(', ');
+        } else if (typeof detail === 'object') {
+          errorMessage = JSON.stringify(detail);
+        } else {
+          errorMessage = String(detail);
+        }
+      } else {
+        errorMessage = err.message || (isLogin ? 'Failed to log in. Please check your credentials.' : 'Registration failed. User may already exist.');
+      }
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
