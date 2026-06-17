@@ -10,6 +10,46 @@ from app.db_models.user import User
 
 router = APIRouter()
 
+def set_auth_cookies(response: Response, request: Request, tokens):
+    hostname = request.url.hostname or ""
+    is_dev = "localhost" in hostname or "127.0.0.1" in hostname
+    samesite = "lax" if is_dev else "none"
+    secure = False if is_dev else True
+    
+    response.set_cookie(
+        key="access_token",
+        value=f"Bearer {tokens.access_token}",
+        httponly=True,
+        max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
+        samesite=samesite,
+        secure=secure
+    )
+    response.set_cookie(
+        key="refresh_token",
+        value=tokens.refresh_token,
+        httponly=True,
+        max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
+        samesite=samesite,
+        secure=secure
+    )
+
+def delete_auth_cookies(response: Response, request: Request):
+    hostname = request.url.hostname or ""
+    is_dev = "localhost" in hostname or "127.0.0.1" in hostname
+    samesite = "lax" if is_dev else "none"
+    secure = False if is_dev else True
+    
+    response.delete_cookie(
+        key="access_token",
+        samesite=samesite,
+        secure=secure
+    )
+    response.delete_cookie(
+        key="refresh_token",
+        samesite=samesite,
+        secure=secure
+    )
+
 @router.post("/register", response_model=UserOut, status_code=status.HTTP_201_CREATED)
 def register(user_in: UserCreate, db: Session = Depends(get_db)):
     try:
@@ -24,26 +64,13 @@ def register(user_in: UserCreate, db: Session = Depends(get_db)):
         )
 
 @router.post("/login", response_model=Token)
-def login(response: Response, user_in: UserLogin, db: Session = Depends(get_db)):
+def login(request: Request, response: Response, user_in: UserLogin, db: Session = Depends(get_db)):
     try:
         user = authenticate_user(db, user_in)
         tokens = create_user_tokens(db, user.id)
         
         # Set cookies
-        response.set_cookie(
-            key="access_token",
-            value=f"Bearer {tokens.access_token}",
-            httponly=True,
-            max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-            samesite="lax"
-        )
-        response.set_cookie(
-            key="refresh_token",
-            value=tokens.refresh_token,
-            httponly=True,
-            max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
-            samesite="lax"
-        )
+        set_auth_cookies(response, request, tokens)
         
         return tokens
     except HTTPException:
@@ -78,20 +105,7 @@ def refresh(
         tokens = refresh_user_token(db, refresh_token)
         
         # Set cookies
-        response.set_cookie(
-            key="access_token",
-            value=f"Bearer {tokens.access_token}",
-            httponly=True,
-            max_age=settings.ACCESS_TOKEN_EXPIRE_MINUTES * 60,
-            samesite="lax"
-        )
-        response.set_cookie(
-            key="refresh_token",
-            value=tokens.refresh_token,
-            httponly=True,
-            max_age=settings.REFRESH_TOKEN_EXPIRE_DAYS * 24 * 60 * 60,
-            samesite="lax"
-        )
+        set_auth_cookies(response, request, tokens)
         
         return tokens
     except HTTPException:
@@ -110,8 +124,7 @@ def logout(request: Request, response: Response, db: Session = Depends(get_db)):
         if refresh_token:
             revoke_refresh_token(db, refresh_token)
             
-        response.delete_cookie(key="access_token")
-        response.delete_cookie(key="refresh_token")
+        delete_auth_cookies(response, request)
         
         return {"message": "Successfully logged out"}
     except SQLAlchemyError as e:
