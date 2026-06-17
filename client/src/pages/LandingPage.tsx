@@ -377,8 +377,8 @@ const LandingPage: React.FC = () => {
                   </div>
                   <div>
                     <h4 className="text-sm font-bold text-slate-950">Email Us</h4>
-                    <a href="mailto:support@vednix.com" className="text-xs text-slate-600 hover:text-accent font-medium mt-0.5 block">
-                      support@vednix.com
+                    <a href="mailto:designdoc@gmail.com" className="text-xs text-slate-600 hover:text-accent font-medium mt-0.5 block">
+                      designdoc@gmail.com
                     </a>
                   </div>
                 </div>
@@ -402,8 +402,7 @@ const LandingPage: React.FC = () => {
                   <div>
                     <h4 className="text-sm font-bold text-slate-950">HQ Location</h4>
                     <p className="text-xs text-slate-600 font-medium mt-0.5 leading-relaxed">
-                      Vednix Technology Private Limited<br />
-                      Bangalore, Karnataka, India
+                      Indore, Madhya Pradesh, India
                     </p>
                   </div>
                 </div>
