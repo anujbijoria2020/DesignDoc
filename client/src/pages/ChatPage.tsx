@@ -17,7 +17,6 @@ const ChatPage: React.FC = () => {
   const navigate = useNavigate();
 
   const {
-    activeProject,
     setActiveProject,
     messages,
     isGenerating,
