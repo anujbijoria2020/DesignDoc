@@ -5,17 +5,14 @@ import { useToastStore } from '../store/toastStore';
 import Button from '../components/ui/Button';
 import {
   ArrowRight,
-  CheckCircle2,
   Mail,
   MessageSquare,
   MapPin,
   Database,
   FileText,
   Workflow,
-  ExternalLink,
   ShieldCheck,
-  Send,
-  User
+  Send
 } from 'lucide-react';
 
 const LandingPage: React.FC = () => {
